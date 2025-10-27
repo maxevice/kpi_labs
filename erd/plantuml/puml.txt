@@ -1,0 +1,113 @@
+@startuml 
+
+entity User {
+    PK: user_id
+    --
+    first_name
+    last_name
+    phone_number
+    password
+}
+
+entity Order {
+    PK: order_id
+    --
+    created_at
+    status
+    FK: user_id
+}
+
+entity Payment {
+    PK: payment_id
+    --
+    amount
+    total_amount
+    method
+    status
+    FK: order_id
+    FK: done_at
+}
+
+entity OrderItem {
+    PK: orderitem_id
+    --
+    quantity
+    FK: product_id
+    FK: order_id
+}
+
+entity Product {
+    PK: product_id
+    --
+    name
+    description
+    price
+    FK: category_id
+}
+
+entity Category {
+    PK: category_id
+    --
+    name
+    description
+}
+
+entity Review {
+    PK: review_id
+    --
+    rating
+    is_approved
+    created_at
+    FK: user_id
+    FK: product_id
+}
+
+entity Cart {
+    PK: cart_id
+    --
+    created_at
+    updated_at
+    FK: user_id
+}
+
+entity CartItem {
+    PK: cartitem_id
+    --
+    quantity
+    FK: product_id
+    FK: cart_id
+}
+
+' Relations:
+
+' 1. User -- Order: 
+User "1" *-- "0...N" Order : places
+
+' 2. Order -- Payment: 
+Order "1" *-- "1" Payment : has
+
+' 3. Order -- OrderItem: 
+Order "1" *-- "1...N" OrderItem
+
+' 4. Product -- OrderItem: 
+Product "1" *-- "0...N" OrderItem
+
+' 5. Cart -- CartItem: 
+Cart "1" *-- "0...N" CartItem
+
+' 6. Product -- CartItem: 
+Product "1" *-- "0...N" CartItem
+
+' 7. Product -- Review: 
+Product "1" *-- "0...N" Review : has
+
+' 8. Product -- Category: 
+Product "1...N" *-- "1" Category : is in
+
+' 9. User -- Review: 
+User "1" *-- "0...N" Review : writes
+
+' 10. User -- Cart (1-до-1): 
+User "1" *-- "1...N" Cart
+
+@enduml
