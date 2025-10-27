@@ -1,96 +1,139 @@
-class User:
-    def __init__(self, user_id, first_name, last_name, phone_number, password):
-        self.user_id = user_id
-        self.first_name = first_name
-        self.last_name = last_name
-        self.phone_number = phone_number
-        self.password = password
+from datetime import datetime
 
-        # relationships
-        self.orders = []
-        self.reviews = []
-        self.carts = []   
+
+class User:
+    def __init__(
+        self,
+        user_id: str,        # PK
+        first_name: str,
+        last_name: str,
+        phone_number: str,
+        password: str
+    ):
+        self.user_id: str = user_id  # PK
+        self.first_name: str = first_name
+        self.last_name: str = last_name
+        self.phone_number: str = phone_number
+        self.password: str = password
 
 
 class Order:
-    def __init__(self, order_id, created_at, status, user):
-        self.order_id = order_id
-        self.created_at = created_at
-        self.status = status
-        self.user = user      # FK → User
-
-        # relationships
-        self.items = []
-        self.payment = None
+    def __init__(
+        self,
+        order_id: str,       # PK
+        created_at: datetime,
+        status: str,
+        user_id: str         # FK → User.user_id
+    ):
+        self.order_id: str = order_id    # PK
+        self.created_at: datetime = created_at
+        self.status: str = status
+        self.user_id: str = user_id      # FK
 
 
 class Payment:
-    def __init__(self, payment_id, amount, total_amount, method, status, order, done_at):
-        self.payment_id = payment_id
-        self.amount = amount
-        self.total_amount = total_amount
-        self.method = method
-        self.status = status
-        self.order = order        # FK → Order
-        self.done_at = done_at
+    def __init__(
+        self,
+        payment_id: str,     # PK
+        amount: float,
+        total_amount: float,
+        method: str,
+        status: str,
+        order_id: str,       # FK → Order.order_id
+        done_at: datetime
+    ):
+        self.payment_id: str = payment_id    # PK
+        self.amount: float = amount
+        self.total_amount: float = total_amount
+        self.method: str = method
+        self.status: str = status
+        self.order_id: str = order_id        # FK
+        self.done_at: datetime = done_at
 
 
 class OrderItem:
-    def __init__(self, orderitem_id, quantity, product, order):
-        self.orderitem_id = orderitem_id
-        self.quantity = quantity
-        self.product = product    # FK → Product
-        self.order = order        # FK → Order
+    def __init__(
+        self,
+        orderitem_id: str,   # PK
+        quantity: int,
+        product_id: str,     # FK → Product.product_id
+        order_id: str        # FK → Order.order_id
+    ):
+        self.orderitem_id: str = orderitem_id  # PK
+        self.quantity: int = quantity
+        self.product_id: str = product_id      # FK
+        self.order_id: str = order_id          # FK
 
 
 class Product:
-    def __init__(self, product_id, name, description, price, category):
-        self.product_id = product_id
-        self.name = name
-        self.description = description
-        self.price = price
-        self.category = category  # FK → Category
-
-        # relationships
-        self.order_items = []
-        self.cart_items = []
-        self.reviews = []
+    def __init__(
+        self,
+        product_id: str,     # PK
+        name: str,
+        description: str,
+        price: float,
+        category_id: str     # FK → Category.category_id
+    ):
+        self.product_id: str = product_id  # PK
+        self.name: str = name
+        self.description: str = description
+        self.price: float = price
+        self.category_id: str = category_id  # FK
 
 
 class Category:
-    def __init__(self, category_id, name, description):
-        self.category_id = category_id
-        self.name = name
-        self.description = description
-
-        # relationships
-        self.products = []
+    def __init__(
+        self,
+        category_id: str,    # PK
+        name: str,
+        description: str
+    ):
+        self.category_id: str = category_id  # PK
+        self.name: str = name
+        self.description: str = description
 
 
 class Review:
-    def __init__(self, review_id, rating, is_approved, created_at, user, product):
-        self.review_id = review_id
-        self.rating = rating
-        self.is_approved = is_approved
-        self.created_at = created_at
-        self.user = user          # FK → User
-        self.product = product    # FK → Product
+    def __init__(
+        self,
+        review_id: str,      # PK
+        rating: int,
+        is_approved: bool,
+        created_at: datetime,
+        user_id: str,        # FK → User.user_id
+        product_id: str      # FK → Product.product_id
+    ):
+        self.review_id: str = review_id    # PK
+        self.rating: int = rating
+        self.is_approved: bool = is_approved
+        self.created_at: datetime = created_at
+        self.user_id: str = user_id        # FK
+        self.product_id: str = product_id  # FK
 
 
 class Cart:
-    def __init__(self, cart_id, created_at, updated_at, user):
-        self.cart_id = cart_id
-        self.created_at = created_at
-        self.updated_at = updated_at
-        self.user = user          # FK → User
-
-        # relationships
-        self.items = []
+    def __init__(
+        self,
+        cart_id: str,        # PK
+        created_at: datetime,
+        updated_at: datetime,
+        user_id: str         # FK → User.user_id
+    ):
+        self.cart_id: str = cart_id  # PK
+        self.created_at: datetime = created_at
+        self.updated_at: datetime = updated_at
+        self.user_id: str = user_id  # FK
 
 
 class CartItem:
-    def __init__(self, cartitem_id, quantity, product, cart):
-        self.cartitem_id = cartitem_id
-        self.quantity = quantity
-        self.product = product    # FK → Product
-        self.cart = cart          # FK → Cart
+    def __init__(
+        self,
+        cartitem_id: str,    # PK
+        quantity: int,
+        product_id: str,     # FK → Product.product_id
+        cart_id: str         # FK → Cart.cart_id
+    ):
+        self.cartitem_id: str = cartitem_id  # PK
+        self.quantity: int = quantity
+        self.product_id: str = product_id    # FK
+        self.cart_id: str = cart_id          # FK
