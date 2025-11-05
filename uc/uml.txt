@@ -1,0 +1,97 @@
+@startuml
+
+left to right direction
+
+skinparam backgroundColor white
+
+skinparam usecase {
+  BackgroundColor white
+  BorderColor black
+  ArrowColor black
+  FontColor black
+}
+
+skinparam actor {
+  FontColor black
+  BorderColor black
+}
+
+skinparam arrow {
+  Color black
+}
+
+' ---------- ACTORS ----------
+actor Admin as A
+actor Customer as C
+
+(Manage products) as MP
+(Add products) as AP
+(Delete products) as DP
+(Edit product details) as EP
+
+(Process orders) as PO
+(Update order status) as UOS
+
+(Generate sales report) as GSR
+
+(Browse products) as BP
+(Browse categories) as BC
+(Filter products) as FP
+(View product details) as VPD
+
+(Manage cart) as MC
+(Add item to cart) as AIC
+(Delete item from cart) as DIC
+
+(Place order) as PL
+(Make payment) as PAY
+
+(View orders) as VO
+(Track order status) as TOS
+(Write review) as WR
+
+
+' ---------- RELATIONSHIPS ----------
+
+' Admin actions
+A --> MP
+A --> PO
+A --> GSR
+
+AP --> MP : <<extend>>
+DP --> MP : <<extend>>
+EP --> MP : <<extend>>
+
+UOS --> PO : <<extend>>
+
+
+' Customer actions
+C --> BP
+C --> VPD
+C --> MC
+C --> PL
+C --> PAY
+C --> VO
+C --> WR
+
+' Browse logic
+BC --> BP : <<extend>>
+FP --> BP : <<extend>>
+
+VPD ..> BP : <<uses>>
+
+' Cart logic
+AIC --> MC : <<extend>>
+DIC --> MC : <<extend>>
+PL ..> MC : <<uses>>
+
+' Order logic
+PAY ..> PL : <<uses>>
+TOS --> VO : <<extend>>
+WR ..> VO : <<uses>>
+
+' Cross-role
+BP ..> MP : <<uses>>
+TOS ..> UOS : <<uses>>
+
+@enduml
