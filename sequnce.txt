@@ -5,9 +5,8 @@ participant ShopService
 participant PaymentService
 database DB
 
-activate UI
-
 User -> UI: openWebsite()
+activate UI
 UI -> ShopService: loadProducts()
 activate ShopService
 ShopService -> DB: queryProducts()
@@ -17,8 +16,10 @@ deactivate DB
 ShopService --> UI: productList()
 deactivate ShopService
 UI --> User: renderHomepage()
+deactivate UI
 
 User -> UI: searchOrFilter()
+activate UI
 UI -> ShopService: searchProducts(filters)
 activate ShopService
 ShopService -> DB: queryWithFilters(filters)
@@ -34,9 +35,11 @@ else No products
     UI --> User: showNoResults()
 end
 deactivate ShopService
+deactivate UI
 
 loop addProductsToCart()
     User -> UI: addProduct(productId)
+    activate UI
     UI -> ShopService: saveCartItem(productId)
     activate ShopService
     ShopService -> DB: saveItem(productId)
@@ -46,9 +49,11 @@ loop addProductsToCart()
     ShopService --> UI: cartUpdated()
     deactivate ShopService
     UI --> User: updateCartIcon()
+    deactivate UI
 end
 
 User -> UI: checkout()
+activate UI
 UI -> ShopService: createOrder(cart)
 activate ShopService
 ShopService -> DB: saveOrder(cart)
@@ -57,9 +62,11 @@ DB --> ShopService: orderId()
 deactivate DB
 ShopService --> UI: orderCreated(orderId)
 deactivate ShopService
-UI --> User: showOrderSummary(orderId)
+UI --> User: showOrderSummary()
+deactivate UI
 
 User -> UI: choosePaymentMethod(method)
+activate UI
 UI -> PaymentService: pay(orderId, method)
 activate PaymentService
 
@@ -71,11 +78,15 @@ deactivate DB
 alt Payment successful
     PaymentService -> DB: updateOrderStatus(orderId, "Paid")
     activate DB
-    DB --> PaymentService: ok()
+    DB --> PaymentService: sendNotice()
     deactivate DB
     PaymentService --> UI: paymentSuccess()
     UI --> User: confirmOrder()
 else Payment failed
+    PaymentService -> DB: updateOrderStatus(orderId, "Failed")
+    activate DB
+    DB --> PaymentService: sendNotice()
+    deactivate DB
     PaymentService --> UI: paymentFailed()
     UI --> User: showPaymentError()
 end
