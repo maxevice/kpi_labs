@@ -1,0 +1,79 @@
+@startuml
+
+actor Client
+participant "Web Shop" as Shop
+participant "Payment Service" as Pay
+database "Database" as DB
+participant "Email System" as Mail
+
+Client -> Shop: initiateCheckout()
+activate Shop
+
+Shop -> DB: createPendingOrder()
+activate DB
+DB --> Shop: return orderId
+deactivate DB
+
+Shop -> Pay: requestPaymentSession()
+activate Pay
+Pay --> Shop: return sessionToken
+deactivate Pay
+
+Shop --> Client: redirectToPaymentPage()
+deactivate Shop
+
+Client -> Pay: submitCardDetails()
+activate Pay
+Pay --> Client: request3DSecureOTP()
+deactivate Pay
+
+Client -> Pay: submitOTP()
+activate Pay
+
+alt Payment Authorized
+    Pay --> Client: displaySuccessMessage()
+    deactivate Pay
+    
+    Client -> Shop: returnToStore()
+    activate Shop
+
+    Shop -> Pay: verifyTransactionStatus()
+    activate Pay
+    Pay --> Shop: return status: CAPTURED
+    deactivate Pay
+
+    Shop -> DB: updateOrderStatus(PAID)
+    activate DB
+    DB --> Shop: confirmUpdate
+    deactivate DB
+
+    Shop -> Mail: sendReceiptEmail()
+    activate Mail
+    Mail --> Client: deliverEmail()
+    deactivate Mail
+
+    Shop --> Client: showThankYouPage()
+    deactivate Shop
+
+else Payment Declined
+    Pay --> Client: displayErrorMessage()
+    deactivate Pay
+    
+    Client -> Shop: returnToStore()
+    activate Shop
+
+    Shop -> Pay: getTransactionError()
+    activate Pay
+    Pay --> Shop: return error: INSUFFICIENT_FUNDS
+    deactivate Pay
+
+    Shop -> DB: updateOrderStatus(FAILED)
+    activate DB
+    DB --> Shop: confirmUpdate
+    deactivate DB
+
+    Shop --> Client: showRetryPage()
+    deactivate Shop
+end
+
+@enduml
