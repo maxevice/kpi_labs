@@ -1,0 +1,85 @@
+@startuml
+actor User
+participant UI
+participant ShopService
+participant PaymentService
+database DB
+
+activate UI
+
+User -> UI: openWebsite()
+UI -> ShopService: loadProducts()
+activate ShopService
+ShopService -> DB: queryProducts()
+activate DB
+DB --> ShopService: products()
+deactivate DB
+ShopService --> UI: productList()
+deactivate ShopService
+UI --> User: renderHomepage()
+
+User -> UI: searchOrFilter()
+UI -> ShopService: searchProducts(filters)
+activate ShopService
+ShopService -> DB: queryWithFilters(filters)
+activate DB
+DB --> ShopService: productsOrEmpty()
+deactivate DB
+
+alt Products found
+    ShopService --> UI: returnProducts()
+    UI --> User: showProducts()
+else No products
+    ShopService --> UI: returnEmpty()
+    UI --> User: showNoResults()
+end
+deactivate ShopService
+
+loop addProductsToCart()
+    User -> UI: addProduct(productId)
+    UI -> ShopService: saveCartItem(productId)
+    activate ShopService
+    ShopService -> DB: saveItem(productId)
+    activate DB
+    DB --> ShopService: ok()
+    deactivate DB
+    ShopService --> UI: cartUpdated()
+    deactivate ShopService
+    UI --> User: updateCartIcon()
+end
+
+User -> UI: checkout()
+UI -> ShopService: createOrder(cart)
+activate ShopService
+ShopService -> DB: saveOrder(cart)
+activate DB
+DB --> ShopService: orderId()
+deactivate DB
+ShopService --> UI: orderCreated(orderId)
+deactivate ShopService
+UI --> User: showOrderSummary(orderId)
+
+User -> UI: choosePaymentMethod(method)
+UI -> PaymentService: pay(orderId, method)
+activate PaymentService
+
+PaymentService -> DB: authorizePayment(orderId, method)
+activate DB
+DB --> PaymentService: paymentStatus()
+deactivate DB
+
+alt Payment successful
+    PaymentService -> DB: updateOrderStatus(orderId, "Paid")
+    activate DB
+    DB --> PaymentService: ok()
+    deactivate DB
+    PaymentService --> UI: paymentSuccess()
+    UI --> User: confirmOrder()
+else Payment failed
+    PaymentService --> UI: paymentFailed()
+    UI --> User: showPaymentError()
+end
+
+deactivate PaymentService
+deactivate UI
+@enduml
