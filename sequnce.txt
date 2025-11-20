@@ -93,4 +93,6 @@ end
 
 deactivate PaymentService
 deactivate UI
+destroy User
+
 @enduml
