@@ -1,0 +1,64 @@
+@startuml
+
+|Client|
+|Web Shop System|
+|DB|
+|Payment system|
+
+|Client|
+start
+:Click "Pay now";
+
+|Web Shop System|
+:Order info;
+:Validate cart;
+
+|DB|
+:Updatee order\nrecord(pending);
+:Lock items in cart;
+
+|Web Shop System|
+:Request payment\ntoken;
+
+|Payment system|
+repeat
+    :Initialize secure\nsession;
+
+    |Client|
+    :Enter card details;
+
+    |Payment system|
+    :Card details;
+    :Validate card\nformat;
+    :Send OTP via\nsms/app;
+
+    |Client|
+    :Receive OTP code<
+    :Submit OTP;
+
+    |Payment system|
+    :Verify OTP;
+
+repeat while (Enough funds?) is (Not enough funds)
+-> Enough funds;
+
+:Payment successful>
+
+|Web Shop System|
+:Payment successful<
+
+fork
+    :Notify client;
+    |Client|
+    :"Order is created"\nPage;
+    stop
+fork again
+    |Web Shop System|
+    :Finalize DB;
+    |DB|
+    :Update order\nstatus;
+    :Clear user cart;
+    detach
+end fork
+
+@enduml
